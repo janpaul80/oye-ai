@@ -1,0 +1,53 @@
+{
+  "landing": {
+    "title": "Oye AI | Tu Empleado de IA para WhatsApp",
+    "meta_description": "Automatiza tus ventas, agenda citas y atiende clientes por WhatsApp con Inteligencia Artificial autónoma. Diseñado para negocios hispanos.",
+    "hero_badge": "⚡ La Nueva Era del Comercio Conversacional",
+    "hero_title_part1": "Tu empleado de",
+    "hero_title_accent": "Inteligencia Artificial",
+    "hero_title_part2": "que vende por WhatsApp",
+    "hero_subtitle": "Oye AI automatiza soporte, calificación de leads, agendamiento de citas y cobros 24/7 en WhatsApp, Instagram y chat web. Diseñado para sentirse nativo, rápido y premium.",
+    "cta_primary": "Comenzar Demo Gratis",
+    "cta_secondary": "Hablar con Asesor",
+    "features_title": "Todo lo que necesitas para automatizar tu negocio",
+    "features_subtitle": "Oye AI no es un chatbot genérico. Es un agente autónomo de ventas y soporte.",
+    "feature_ai_title": "Agentes IA Autónomos",
+    "feature_ai_desc": "Respuestas instantáneas en el idioma de tu cliente, procesando texto y notas de voz con precisión humana.",
+    "feature_booking_title": "Agendamiento Inteligente",
+    "feature_booking_desc": "Sincroniza agendas y reserva citas automáticamente en la conversación sin fricción.",
+    "feature_payment_title": "Cobros en el Chat",
+    "feature_payment_desc": "Genera y envía enlaces de Stripe directamente para cerrar ventas al instante.",
+    "feature_handoff_title": "Traspaso Humano Fluido",
+    "feature_handoff_desc": "Intervén cuando quieras. La IA detecta la intención y te cede el control con alertas en tiempo real."
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "inbox": "Bandeja de Entrada",
+    "conversations": "Conversaciones",
+    "agents": "Agentes IA",
+    "billing": "Facturación",
+    "settings": "Configuración",
+    "active_chats": "Chats Activos",
+    "ai_mode": "Modo Inteligente",
+    "manual_mode": "Modo Manual",
+    "unassigned": "Sin asignar",
+    "type_message": "Escribe un mensaje...",
+    "send": "Enviar",
+    "search_chats": "Buscar conversaciones...",
+    "status": {
+      "open": "Abierto",
+      "snoozed": "Pospuesto",
+      "closed": "Cerrado"
+    }
+  },
+  "common": {
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "Inglés",
+    "portuguese": "Portugués",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "logout": "Cerrar Sesión",
+    "loading": "Cargando..."
+  }
+}

@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. Redis Cache & Rate Limiting Cluster
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: oye_redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379" # CRITICAL SECURITY: Expose only to localhost! Prevents public port scans.
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - oye_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          memory: 64M
+
+
+  # ==========================================
+  # 2. Next.js Web App Core Services (Standalone)
+  # ==========================================
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oye_nextjs
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3005:3000" # Expose to host port 3005 to avoid collision with legacy PM2 (port 3000)
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379 # Override to use internal bridge network address
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - oye_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          memory: 128M
+
+
+  # ==========================================
+  # 3. Isolated Background Retries Cron Worker
+  # ==========================================
+  worker:
+    image: alpine:3.19
+    container_name: oye_worker
+    restart: unless-stopped
+    depends_on:
+      nextjs:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    command: >
+      sh -c "
+        echo '*/5 * * * * wget -qO- --header=\"Authorization: Bearer $$CRON_SECRET\" http://nextjs:3000/api/jobs/retry-deliveries' > /etc/periodic/5min/retry_job &&
+        chmod +x /etc/periodic/5min/retry_job &&
+        echo '[Worker Boot] Production retry queue worker registered. Running cron schedule every 5 minutes.' &&
+        crond -f -l 8
+      "
+    networks:
+      - oye_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 64M
+        reservations:
+          memory: 16M
+
+
+volumes:
+  redis_data:
+
+networks:
+  oye_network:
+    driver: bridge

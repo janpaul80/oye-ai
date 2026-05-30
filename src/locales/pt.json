@@ -1,0 +1,53 @@
+{
+  "landing": {
+    "title": "Oye AI | Seu Funcionário de IA para WhatsApp",
+    "meta_description": "Automatize suas vendas, agende compromissos e atenda clientes no WhatsApp com Inteligência Artificial autônoma.",
+    "hero_badge": "⚡ A Nova Era do Comércio Conversacional",
+    "hero_title_part1": "Seu funcionário de",
+    "hero_title_accent": "Inteligência Artificial",
+    "hero_title_part2": "que vende pelo WhatsApp",
+    "hero_subtitle": "O Oye AI automatiza suporte, qualificação de leads, agendamento de consultas e pagamentos 24/7 no WhatsApp. Nativo, rápido e premium.",
+    "cta_primary": "Começar Demo Grátis",
+    "cta_secondary": "Falar com Consultor",
+    "features_title": "Tudo o que você precisa para automatizar seu negócio",
+    "features_subtitle": "O Oye AI não é um chatbot genérico. É um agente autônomo de vendas e suporte.",
+    "feature_ai_title": "Agentes de IA Autônomos",
+    "feature_ai_desc": "Respostas instantâneas no idioma do cliente, processando texto e notas de voz com precisão humana.",
+    "feature_booking_title": "Agendamento Inteligente",
+    "feature_booking_desc": "Sincronize agendas e reserve horários automaticamente na conversa sem atrito.",
+    "feature_payment_title": "Cobrança no Chat",
+    "feature_payment_desc": "Gere e envie links do Stripe diretamente para fechar vendas no ato.",
+    "feature_handoff_title": "Transição Humana Fluida",
+    "feature_handoff_desc": "Intervenha quando quiser. A IA detecta a intenção e passa o controle com alertas em tempo real."
+  },
+  "dashboard": {
+    "title": "Painel de Controle",
+    "inbox": "Caixa de Entrada",
+    "conversations": "Conversas",
+    "agents": "Agentes de IA",
+    "billing": "Faturamento",
+    "settings": "Configurações",
+    "active_chats": "Chats Ativos",
+    "ai_mode": "Modo Inteligente",
+    "manual_mode": "Modo Manual",
+    "unassigned": "Não atribuído",
+    "type_message": "Digite uma mensagem...",
+    "send": "Enviar",
+    "search_chats": "Buscar conversas...",
+    "status": {
+      "open": "Aberto",
+      "snoozed": "Adiado",
+      "closed": "Fechado"
+    }
+  },
+  "common": {
+    "language": "Idioma",
+    "spanish": "Espanhol",
+    "english": "Inglês",
+    "portuguese": "Português",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "logout": "Sair",
+    "loading": "Carregando..."
+  }
+}

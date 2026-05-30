@@ -1,0 +1,53 @@
+{
+  "landing": {
+    "title": "Oye AI | Your AI Employee for WhatsApp",
+    "meta_description": "Automate your sales, book appointments, and support customers on WhatsApp with autonomous AI. Built for scalable businesses.",
+    "hero_badge": "⚡ The New Era of Conversational Commerce",
+    "hero_title_part1": "Your autonomous",
+    "hero_title_accent": "AI Employee",
+    "hero_title_part2": "that sells on WhatsApp",
+    "hero_subtitle": "Oye AI automates support, lead qualification, appointment booking, and payments 24/7 on WhatsApp, Instagram, and web chat. Native, fast, and premium.",
+    "cta_primary": "Start Free Demo",
+    "cta_secondary": "Talk to Sales",
+    "features_title": "Everything you need to automate your business",
+    "features_subtitle": "Oye AI is not a generic chatbot. It's an autonomous sales and support assistant.",
+    "feature_ai_title": "Autonomous AI Agents",
+    "feature_ai_desc": "Instant replies in your customer's language, processing text and voice notes with human-like precision.",
+    "feature_booking_title": "Smart Scheduling",
+    "feature_booking_desc": "Sync calendars and book appointments automatically within the chat with zero friction.",
+    "feature_payment_title": "In-Chat Checkout",
+    "feature_payment_desc": "Generate and send Stripe payment links directly to close sales instantly.",
+    "feature_handoff_title": "Seamless Human Handoff",
+    "feature_handoff_desc": "Step in anytime. The AI detects customer intent and hands over control with real-time alerts."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "inbox": "Inbox",
+    "conversations": "Conversations",
+    "agents": "AI Agents",
+    "billing": "Billing",
+    "settings": "Settings",
+    "active_chats": "Active Chats",
+    "ai_mode": "AI Mode",
+    "manual_mode": "Manual Mode",
+    "unassigned": "Unassigned",
+    "type_message": "Type a message...",
+    "send": "Send",
+    "search_chats": "Search chats...",
+    "status": {
+      "open": "Open",
+      "snoozed": "Snoozed",
+      "closed": "Closed"
+    }
+  },
+  "common": {
+    "language": "Language",
+    "spanish": "Spanish",
+    "english": "English",
+    "portuguese": "Portuguese",
+    "save": "Save",
+    "cancel": "Cancel",
+    "logout": "Log Out",
+    "loading": "Loading..."
+  }
+}
