@@ -91,6 +91,9 @@ export default function DashboardPage() {
             <Link href="/setup" className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium">
               Setup
             </Link>
+            <Link href="/mission-control" className="px-4 py-2 bg-purple-700 hover:bg-purple-600 rounded-lg font-medium">
+              Mission Control
+            </Link>
           </div>
         </div>
 
