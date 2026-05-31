@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ActivityFeed from './components/ActivityFeed';
 
 interface Stats {
   totalLeads: number;
@@ -86,13 +87,8 @@ export default function DashboardPage() {
 
         {/* Activity Feed */}
         <div className="bg-gray-900 rounded-lg p-4">
-          <h2 className="text-lg font-semibold mb-4">Demo Mode Active</h2>
-          <p className="text-gray-400 text-sm">
-            Running with demo provider — no Twilio, Stripe, or Supabase required.
-          </p>
-          <p className="text-gray-500 text-xs mt-2">
-            Send POST to /api/demo/webhook with {"{ from, body }"} to test.
-          </p>
+          <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+          <ActivityFeed />
         </div>
       </div>
     </div>
