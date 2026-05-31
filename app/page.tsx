@@ -80,7 +80,13 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
           <div className="flex gap-4">
             <Link href="/inbox" className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-lg font-medium">
-              Open Inbox
+              Inbox
+            </Link>
+            <Link href="/bookings" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium">
+              Bookings
+            </Link>
+            <Link href="/analytics" className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium">
+              Analytics
             </Link>
           </div>
         </div>
