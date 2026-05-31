@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface Lead {
   id: string;
@@ -11,141 +12,119 @@ interface Lead {
   created_at: string;
   last_message_at: string;
   notes: string;
-}
-
-interface Stats {
-  totalLeads: number;
-  newToday: number;
-  qualified: number;
-  conversations: number;
-  messages: number;
-  appointments: number;
+  unread?: number;
 }
 
 export default function InboxPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'all' | 'new' | 'qualified'>('all');
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchLeads() {
       try {
-        const [leadsRes, statsRes] = await Promise.all([
-          fetch('/api/inbox/leads'),
-          fetch('/api/inbox/stats'),
-        ]);
-        
-        if (leadsRes.ok) {
-          const data = await leadsRes.json();
+        const res = await fetch('/api/inbox/leads');
+        if (res.ok) {
+          const data = await res.json();
           setLeads(data);
         }
-        if (statsRes.ok) {
-          const data = await statsRes.json();
-          setStats(data);
-        }
       } catch (err) {
-        setError('Failed to load inbox');
+        console.error('Failed to load leads', err);
       } finally {
         setLoading(false);
       }
     }
-    
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
+    fetchLeads();
+    const interval = setInterval(fetchLeads, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const filtered = leads.filter(l => {
+    const matchSearch = !search || 
+      l.name?.toLowerCase().includes(search.toLowerCase()) ||
+      l.phone?.includes(search) ||
+      l.niche?.toLowerCase().includes(search.toLowerCase());
+    const matchFilter = filter === 'all' || 
+      (filter === 'new' && new Date(l.created_at) > new Date(Date.now() - 86400000)) ||
+      (filter === 'qualified' && l.score >= 70);
+    return matchSearch && matchFilter;
+  });
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 text-white p-6">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Inbox</h1>
-          <p className="text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-950 text-white p-6">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Inbox</h1>
-          <p className="text-red-400">{error}</p>
+        <div className="max-w-5xl mx-auto">
+          <p className="text-gray-400">Loading inbox...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-8">
+    <div className="min-h-screen bg-gray-950 text-white">
+      <div className="max-w-5xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8">
           <h1 className="text-2xl font-bold">Inbox</h1>
-          <p className="text-gray-400">Business messaging & leads</p>
-        </header>
-
-        {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gray-900 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">Total Leads</p>
-              <p className="text-2xl font-bold">{stats.totalLeads}</p>
-            </div>
-            <div className="bg-gray-900 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">New Today</p>
-              <p className="text-2xl font-bold text-green-400">{stats.newToday}</p>
-            </div>
-            <div className="bg-gray-900 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">Qualified</p>
-              <p className="text-2xl font-bold text-blue-400">{stats.qualified}</p>
-            </div>
-            <div className="bg-gray-900 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">Conversations</p>
-              <p className="text-2xl font-bold">{stats.conversations}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Leads List */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
-          <div className="p-4 border-b border-gray-800">
-            <h2 className="font-semibold">Recent Leads</h2>
-          </div>
-          {leads.length === 0 ? (
-            <div className="p-8 text-center text-gray-400">
-              No leads yet. Send a message to /api/demo/webhook to create one.
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-800">
-              {leads.map((lead) => (
-                <div key={lead.id} className="p-4 flex items-center justify-between hover:bg-gray-800/50">
-                  <div>
-                    <p className="font-medium">{lead.name || lead.phone}</p>
-                    <p className="text-gray-400 text-sm">{lead.niche} • {lead.phone}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-bold ${lead.score >= 70 ? 'text-green-400' : 'text-gray-400'}`}>
-                      {lead.score}
-                    </p>
-                    <p className="text-gray-500 text-xs">
-                      {new Date(lead.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <p className="text-gray-400">{leads.length} conversations</p>
         </div>
 
-        {/* Demo Instruction */}
-        <div className="mt-8 p-4 bg-gray-900 rounded-lg">
-          <p className="text-gray-400 text-sm">
-            <span className="text-green-400">Demo Mode:</span> Send POST to{' '}
-            <code className="text-gray-300">/api/demo/webhook</code> with{' '}
-            <code className="text-gray-300">{"{ from, body }"}</code> to create leads.
-          </p>
+        {/* Search & Filter */}
+        <div className="flex gap-4 mb-6">
+          <input
+            type="text"
+            placeholder="Search leads..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+          />
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as any)}
+            className="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none"
+          >
+            <option value="all">All</option>
+            <option value="new">New Today</option>
+            <option value="qualified">Qualified (70+)</option>
+          </select>
+        </div>
+
+        {/* Leads List */}
+        <div className="space-y-2">
+          {filtered.length === 0 ? (
+            <div className="bg-gray-900 rounded-lg p-8 text-center text-gray-400">
+              No conversations. Send a message to test.
+            </div>
+          ) : (
+            filtered.map((lead) => (
+              <Link
+                key={lead.id}
+                href={`/inbox/${encodeURIComponent(lead.phone)}`}
+                className="block bg-gray-900 hover:bg-gray-800 rounded-lg p-4 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-white">{lead.name || lead.phone}</span>
+                      {lead.score >= 70 && (
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Qualified</span>
+                      )}
+                      {lead.unread ? (
+                        <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">{lead.unread}</span>
+                      ) : null}
+                    </div>
+                    <p className="text-gray-400 text-sm mt-1">
+                      {lead.niche} • {lead.phone}
+                    </p>
+                  </div>
+                  <div className="text-right text-sm text-gray-500">
+                    {new Date(lead.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>
