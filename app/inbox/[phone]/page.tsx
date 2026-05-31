@@ -90,8 +90,17 @@ export default function ConversationPage() {
     }
   };
 
-  const markResolved = () => {
-    alert('Resolved - coming soon');
+  const markResolved = async () => {
+    try {
+      await fetch('/api/inbox/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, status: 'resolved' }),
+      });
+      alert('Marked as resolved');
+    } catch (err) {
+      console.error('Failed to resolve', err);
+    }
   };
 
   const [newNote, setNewNote] = useState('');

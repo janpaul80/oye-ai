@@ -14,9 +14,15 @@ export default function SetupPage() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const res = await fetch('/api/organizations/settings');
+        const res = await fetch('/api/business');
         if (res.ok) {
           const data = await res.json();
+          // Map API fields to UI fields
+          setSettings({
+            businessName: data.business_name || '',
+            niche: data.niche || '',
+            aiInstructions: data.instructions || '',
+          });
           setSettings(data);
         }
       } catch (err) {
@@ -31,10 +37,16 @@ export default function SetupPage() {
   async function saveSettings() {
     setSaving(true);
     try {
-      const res = await fetch('/api/organizations/settings', {
+      // Map UI fields to API fields
+      const apiData = {
+        business_name: settings.businessName,
+        niche: settings.niche,
+        instructions: settings.aiInstructions,
+      };
+      const res = await fetch('/api/business', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(apiData),
       });
       if (res.ok) {
         alert('Settings saved!');
