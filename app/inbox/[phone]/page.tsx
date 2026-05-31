@@ -91,8 +91,23 @@ export default function ConversationPage() {
   };
 
   const markResolved = () => {
-    // TODO: Implement status update
-    alert('Mark as resolved - coming soon');
+    alert('Resolved - coming soon');
+  };
+
+  const [newNote, setNewNote] = useState('');
+  
+  const addNote = async () => {
+    if (!newNote.trim()) return;
+    try {
+      await fetch('/api/inbox/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, note: newNote }),
+      });
+      setNewNote('');
+    } catch (err) {
+      console.error('Failed to add note', err);
+    }
   };
 
   const markFollowUp = () => {
@@ -141,6 +156,23 @@ export default function ConversationPage() {
           </div>
         </div>
       )}
+
+      {/* Notes Section */}
+      <div className="border-b border-gray-800 p-2 bg-gray-900/30">
+        <div className="max-w-4xl mx-auto flex gap-2">
+          <input
+            type="text"
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addNote()}
+            placeholder="Add note..."
+            className="flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-white placeholder-gray-500"
+          />
+          <button onClick={addNote} className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-sm">
+            Add Note
+          </button>
+        </div>
+      </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4">
