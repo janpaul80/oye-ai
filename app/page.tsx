@@ -88,6 +88,9 @@ export default function DashboardPage() {
             <Link href="/analytics" className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium">
               Analytics
             </Link>
+            <Link href="/setup" className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium">
+              Setup
+            </Link>
           </div>
         </div>
 
