@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ==========================================
   # 1. Redis Cache & Rate Limiting Cluster
@@ -133,6 +131,7 @@ services:
       - .env.production
     command: >
       sh -c "
+        mkdir -p /etc/periodic/5min &&
         echo '*/5 * * * * wget -qO- --header=\"Authorization: Bearer $$CRON_SECRET\" http://nextjs:3000/api/jobs/retry-deliveries' > /etc/periodic/5min/retry_job &&
         chmod +x /etc/periodic/5min/retry_job &&
         echo '[Worker Boot] Production retry queue worker registered. Running cron schedule every 5 minutes.' &&
