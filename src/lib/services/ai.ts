@@ -291,7 +291,7 @@ export async function generateAICompletionWithFailover(
   }
 
   // Cascading priority order
-  const fallbackOrder = ['langdock', 'openai', 'anthropic', 'gemini'];
+  const fallbackOrder = ['blackbox', 'langdock', 'openai', 'anthropic', 'gemini', 'mock'];
   
   // Reorder list to execute active provider first
   const providersToTry = [
