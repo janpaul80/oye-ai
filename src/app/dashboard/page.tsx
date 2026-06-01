@@ -40,6 +40,15 @@ interface DBConversation {
   priority_level?: 'low' | 'medium' | 'high' | 'critical';
   sla_deadline?: string;
   last_operator_action_at?: string;
+  ai_summary?: string;
+  sentiment?: 'positive' | 'neutral' | 'negative' | 'mixed';
+  lead_score?: number;
+  customer_intent?: string;
+  interested_service?: string;
+  appointment_likelihood?: 'high' | 'medium' | 'low' | 'none';
+  suggested_reply?: string;
+  suggested_next_action?: string;
+  last_analysis_at?: string;
 }
 
 interface DBNote {
@@ -651,7 +660,16 @@ export default function DashboardPage() {
         last_message_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
         priority_level: 'high',
-        sla_deadline: new Date(Date.now() + 3200000).toISOString(), // ~53 minutes from now
+        sla_deadline: new Date(Date.now() + 3200000).toISOString(),
+        ai_summary: 'Cliente interesado en reservar mesa. Parece dispuesto a venir hoy.',
+        sentiment: 'positive',
+        lead_score: 85,
+        customer_intent: 'reserva',
+        interested_service: 'Reserva de mesa',
+        appointment_likelihood: 'high',
+        suggested_reply: 'Perfecto, tenemos disponibilidad para hoy a las 5PM y 7:30PM. ¿Cuál prefieres?',
+        suggested_next_action: 'Confirmar hora y enviar enlace de reserva',
+        last_analysis_at: new Date().toISOString(),
         customers: {
           id: 'mock-cust-1',
           name: 'Juan Pérez',
@@ -670,7 +688,15 @@ export default function DashboardPage() {
         last_message_at: new Date(Date.now() - 3600000).toISOString(),
         created_at: new Date(Date.now() - 3600000).toISOString(),
         priority_level: 'critical',
-        sla_deadline: new Date(Date.now() - 120000).toISOString(), // Breached 2 minutes ago!
+        sla_deadline: new Date(Date.now() - 120000).toISOString(),
+        ai_summary: 'Cliente asks about different coffee options. Seems confused about pricing.',
+        sentiment: 'neutral',
+        lead_score: 45,
+        customer_intent: 'consulta',
+        interested_service: 'Café premium',
+        appointment_likelihood: 'medium',
+        suggested_reply: 'Te envío nuestro menú de cafés especiales con precios.',
+        suggested_next_action: 'Share pricing menu',
         customers: {
           id: 'mock-cust-2',
           name: 'Maria Souza',
@@ -1835,6 +1861,30 @@ export default function DashboardPage() {
                               : 'bg-gray-500/20 text-gray-400'
                           }`}>
                             ⚡ {conv.priority_level}
+                          </span>
+                        )}
+                        {conv.sentiment && (
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase ${
+                            conv.sentiment === 'positive'
+                              ? 'bg-emerald-500/20 text-emerald-400'
+                              : conv.sentiment === 'negative'
+                              ? 'bg-rose-500/20 text-rose-400'
+                              : conv.sentiment === 'mixed'
+                              ? 'bg-purple-500/20 text-purple-400'
+                              : 'bg-gray-500/20 text-gray-400'
+                          }`}>
+                            {conv.sentiment === 'positive' ? '😊' : conv.sentiment === 'negative' ? '😞' : conv.sentiment === 'mixed' ? '😐' : '😐'} {conv.sentiment}
+                          </span>
+                        )}
+                        {conv.lead_score !== undefined && conv.lead_score > 0 && (
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase ${
+                            conv.lead_score >= 70
+                              ? 'bg-purple-500/20 text-purple-400'
+                              : conv.lead_score >= 40
+                              ? 'bg-blue-500/20 text-blue-400'
+                              : 'bg-gray-500/20 text-gray-400'
+                          }`}>
+                            🔥 {conv.lead_score}%
                           </span>
                         )}
                         {conv.mode === 'manual' && conv.sla_deadline && (
