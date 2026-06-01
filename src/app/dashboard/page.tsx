@@ -123,6 +123,45 @@ interface DBMessage {
   created_at: string;
 }
 
+const LEAD_STAGES = ['new', 'contacted', 'qualified', 'appointment_scheduled', 'customer', 'closed_won', 'closed_lost'] as const;
+type LeadStage = typeof LEAD_STAGES[number];
+
+interface DBLead {
+  id: string;
+  organization_id: string;
+  customer_id?: string;
+  conversation_id?: string;
+  stage: LeadStage;
+  source?: string;
+  attributes: Record<string, any>;
+  created_by?: string;
+  closed_reason?: string;
+  created_at: string;
+  updated_at: string;
+  customers?: DBCustomer;
+  conversations?: DBConversation;
+  lead_notes?: DBLeadNote[];
+  lead_events?: DBLeadEvent[];
+}
+
+interface DBLeadNote {
+  id: string;
+  organization_id: string;
+  lead_id: string;
+  author_id?: string;
+  body: string;
+  created_at: string;
+}
+
+interface DBLeadEvent {
+  id: string;
+  lead_id: string;
+  organization_id: string;
+  event_type: string;
+  payload: Record<string, any>;
+  created_at: string;
+}
+
 export default function DashboardPage() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -134,7 +173,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Tab & AI Ops Dashboard state
-  const [activeTab, setActiveTab] = useState<'inbox' | 'ai_ops'>('inbox');
+  const [activeTab, setActiveTab] = useState<'inbox' | 'leads' | 'ai_ops'>('inbox');
   const [aiOpsSubTab, setAiOpsSubTab] = useState<'queue' | 'telemetry' | 'sla' | 'notes' | 'dlq' | 'audit' | 'settings'>('queue');
   const [telemetry, setTelemetry] = useState<any>(null);
   const [telemetryLoading, setTelemetryLoading] = useState(true);
@@ -164,6 +203,13 @@ export default function DashboardPage() {
   // Interaction inputs & trackers
   const [inputVal, setInputVal] = useState('');
   const [isAiResponding, setIsAiResponding] = useState(false);
+
+  // Leads management state
+  const [leads, setLeads] = useState<DBLead[]>([]);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [leadStageFilter, setLeadStageFilter] = useState<LeadStage | 'all'>('all');
+  const [leadNotes, setLeadNotes] = useState<DBLeadNote[]>([]);
+  const [leadEvents, setLeadEvents] = useState<DBLeadEvent[]>([]);
   const [streamingTokenText, setStreamingTokenText] = useState('');
   const [activeStreamingProvider, setActiveStreamingProvider] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -317,6 +363,21 @@ export default function DashboardPage() {
           setActiveAgentConfig(agent);
         }
 
+        // Fetch leads for this organization
+        const { data: leadsData } = await supabase
+          .from('leads')
+          .select('*, customers(*), conversations(*), lead_notes(*), lead_events(*)')
+          .eq('organization_id', org.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (leadsData) {
+          setLeads(leadsData);
+          if (leadsData.length > 0) {
+            setSelectedLeadId(leadsData[0].id);
+          }
+        }
+
         setIsLoading(false);
       } catch (err) {
         console.error('[Dashboard] Initialization critical error:', err);
@@ -385,7 +446,31 @@ export default function DashboardPage() {
     fetchNotes();
   }, [selectedConvId, isDegradedMode]);
 
-  // 2c. Periodic Telemetry Fetching (every 5s)
+  // 2c. Fetch lead notes/events when lead is selected
+  useEffect(() => {
+    if (!selectedLeadId) return;
+
+    async function fetchLeadDetails() {
+      const supabase = createClient();
+      const notesRes = await supabase
+        .from('lead_notes')
+        .select('*')
+        .eq('lead_id', selectedLeadId)
+        .order('created_at', { ascending: false });
+      if (!notesRes.error && notesRes.data) setLeadNotes(notesRes.data);
+
+      const eventsRes = await supabase
+        .from('lead_events')
+        .select('*')
+        .eq('lead_id', selectedLeadId)
+        .order('created_at', { ascending: false });
+      if (!eventsRes.error && eventsRes.data) setLeadEvents(eventsRes.data);
+    }
+
+    fetchLeadDetails();
+  }, [selectedLeadId]);
+
+  // 2d. Periodic Telemetry Fetching (every 5s)
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -597,6 +682,82 @@ export default function DashboardPage() {
 
     setConversations(mockConvs);
     setSelectedConvId('mock-conv-1');
+
+    // Mock leads dataset
+    const mockLeads: DBLead[] = [
+      {
+        id: 'mock-lead-1',
+        organization_id: '88888888-8888-8888-8888-888888888888',
+        customer_id: 'mock-cust-1',
+        conversation_id: 'mock-conv-1',
+        stage: 'new',
+        source: 'whatsapp',
+        attributes: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        customers: {
+          id: 'mock-cust-1',
+          name: 'Juan Pérez',
+          phone_number: '+593 99 888 7777',
+          custom_attributes: {}
+        }
+      },
+      {
+        id: 'mock-lead-2',
+        organization_id: '88888888-8888-8888-8888-888888888888',
+        customer_id: 'mock-cust-2',
+        conversation_id: 'mock-conv-2',
+        stage: 'contacted',
+        source: 'whatsapp',
+        attributes: { priority: 'high' },
+        created_at: new Date(Date.now() - 86400000).toISOString(),
+        updated_at: new Date(Date.now() - 3600000).toISOString(),
+        customers: {
+          id: 'mock-cust-2',
+          name: 'Maria Souza',
+          phone_number: '+55 11 99999 8888',
+          custom_attributes: {}
+        }
+      },
+      {
+        id: 'mock-lead-3',
+        organization_id: '88888888-8888-8888-8888-888888888888',
+        stage: 'qualified',
+        source: 'website',
+        attributes: { budget: 5000 },
+        created_at: new Date(Date.now() - 172800000).toISOString(),
+        updated_at: new Date(Date.now() - 7200000).toISOString()
+      },
+      {
+        id: 'mock-lead-4',
+        organization_id: '88888888-8888-8888-8888-888888888888',
+        stage: 'appointment_scheduled',
+        source: 'whatsapp',
+        attributes: { appointment_date: '2026-06-01T17:00:00Z' },
+        created_at: new Date(Date.now() - 259200000).toISOString(),
+        updated_at: new Date(Date.now() - 259200000).toISOString()
+      },
+      {
+        id: 'mock-lead-5',
+        organization_id: '88888888-8888-8888-8888-888888888888',
+        stage: 'customer',
+        source: 'referral',
+        attributes: { ltv: 1200 },
+        created_at: new Date(Date.now() - 604800000).toISOString(),
+        updated_at: new Date(Date.now() - 604800000).toISOString()
+      },
+      {
+        id: 'mock-lead-6',
+        organization_id: '88888888-8888-8888-8888-888888888888',
+        stage: 'closed_lost',
+        source: 'whatsapp',
+        attributes: { lost_reason: 'budget' },
+        created_at: new Date(Date.now() - 432000000).toISOString(),
+        updated_at: new Date(Date.now() - 432000000).toISOString()
+      }
+    ];
+    setLeads(mockLeads);
+    setSelectedLeadId('mock-lead-1');
 
     setMessages([
       {
@@ -1145,6 +1306,69 @@ export default function DashboardPage() {
     }
   };
 
+  // Lead handlers
+  const getNextStage = (currentStage: LeadStage): LeadStage | null => {
+    const stageIndex = LEAD_STAGES.indexOf(currentStage);
+    if (stageIndex === -1 || stageIndex >= LEAD_STAGES.length - 1) return null;
+    return LEAD_STAGES[stageIndex + 1];
+  };
+
+  const updateLeadStage = async (leadId: string, newStage: LeadStage) => {
+    if (!activeOrg) return;
+
+    if (isDegradedMode) {
+      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, stage: newStage, updated_at: new Date().toISOString() } : l));
+      return;
+    }
+
+    try {
+      await fetch('/api/leads/update-stage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgId: activeOrg.id, leadId, stage: newStage })
+      });
+      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, stage: newStage, updated_at: new Date().toISOString() } : l));
+    } catch (err: any) {
+      console.error('[Dashboard] Failed to update lead stage:', err.message);
+    }
+  };
+
+  const addLeadNote = async (leadId: string, noteText: string) => {
+    if (!activeOrg || !noteText.trim()) return;
+
+    if (isDegradedMode) {
+      const newNote: DBLeadNote = {
+        id: `mock-lead-note-${Date.now()}`,
+        organization_id: activeOrg.id,
+        lead_id: leadId,
+        author_id: user?.id,
+        body: noteText,
+        created_at: new Date().toISOString()
+      };
+      setLeadNotes(prev => [newNote, ...prev]);
+      return;
+    }
+
+    try {
+      await fetch('/api/leads/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgId: activeOrg.id, leadId, note: noteText })
+      });
+      const newNote: DBLeadNote = {
+        id: `lead-note-${Date.now()}`,
+        organization_id: activeOrg.id,
+        lead_id: leadId,
+        author_id: user?.id,
+        body: noteText,
+        created_at: new Date().toISOString()
+      };
+      setLeadNotes(prev => [newNote, ...prev]);
+    } catch (err: any) {
+      console.error('[Dashboard] Failed to add lead note:', err.message);
+    }
+  };
+
   const triggerDlqRetry = async () => {
     setLiveEvents(prev => [
       `⚡ Reenviando mensajes fallidos de la cola de DLQ...`,
@@ -1283,6 +1507,21 @@ export default function DashboardPage() {
             </button>
 
             <button
+              onClick={() => setActiveTab('leads')}
+              className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                activeTab === 'leads'
+                  ? 'bg-white/[0.04] text-white font-semibold border-l-2 border-[#00a884]'
+                  : 'text-gray-400 hover:text-white hover:bg-white/[0.02]'
+              }`}
+            >
+              <span className="text-base">🎯</span>
+              <span>Leads</span>
+              <span className="ml-auto w-5 h-5 rounded-full bg-[#00a884]/20 text-[#00a884] text-[10px] flex items-center justify-center font-bold">
+                {leads.length}
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('ai_ops')}
               className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                 activeTab === 'ai_ops'
@@ -1325,7 +1564,195 @@ export default function DashboardPage() {
       </aside>
 
       {/* 2. MAIN VIEW SWITCHER */}
-      {activeTab === 'inbox' ? (
+      {activeTab === 'leads' ? (
+        <div className="flex-grow flex flex-col bg-[#080b11] overflow-y-auto relative z-10 p-6">
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-white/[0.04] mb-6 gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center space-x-2">
+                <span>🎯</span>
+                <span>Gestión de Leads</span>
+              </h2>
+              <p className="text-xs text-gray-400 mt-1">
+                Gestiona tu pipeline de prospectos:desde primer contacto hasta cliente ganado o perdido.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-[10px] font-mono font-extrabold uppercase">
+              <span className="px-2 py-1 rounded bg-[#00a884]/10 text-[#00a884] border border-[#00a884]/20">
+                {leads.length} Total Leads
+              </span>
+            </div>
+          </header>
+
+          {/* Stage filters */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => setLeadStageFilter('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                leadStageFilter === 'all'
+                  ? 'bg-[#00a884] text-black'
+                  : 'bg-white/[0.04] text-gray-400 hover:bg-white/[0.08]'
+              }`}
+            >
+              Todos ({leads.length})
+            </button>
+            {LEAD_STAGES.map(stage => (
+              <button
+                key={stage}
+                onClick={() => setLeadStageFilter(stage as LeadStage)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
+                  leadStageFilter === stage
+                    ? 'bg-[#00a884] text-black'
+                    : 'bg-white/[0.04] text-gray-400 hover:bg-white/[0.08]'
+                }`}
+              >
+                {leads.filter(l => l.stage === stage).length} {stage.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+
+          {/* Leads grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Leads list */}
+            <div className="space-y-3">
+              <h3 className="text-xs uppercase font-extrabold text-gray-500 tracking-wider">Pipeline de Leads</h3>
+              {(leadStageFilter === 'all' ? leads : leads.filter(l => l.stage === leadStageFilter)).map(lead => {
+                const stageIndex = LEAD_STAGES.indexOf(lead.stage);
+                return (
+                  <button
+                    key={lead.id}
+                    onClick={() => setSelectedLeadId(lead.id)}
+                    className={`w-full p-4 rounded-xl text-left border transition-all flex flex-col space-y-2 ${
+                      selectedLeadId === lead.id
+                        ? 'bg-white/[0.03] border-[#00a884]/40 text-white'
+                        : 'bg-white/[0.01] border-white/[0.02] text-gray-400 hover:bg-white/[0.02]'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="font-bold text-white">{lead.customers?.name || 'Lead Sin Nombre'}</span>
+                        <span className="text-[10px] text-gray-500 ml-2">{lead.customers?.phone_number}</span>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${
+                        lead.stage === 'new' ? 'bg-blue-500/20 text-blue-400' :
+                        lead.stage === 'contacted' ? 'bg-amber-500/20 text-amber-400' :
+                        lead.stage === 'qualified' ? 'bg-purple-500/20 text-purple-400' :
+                        lead.stage === 'appointment_scheduled' ? 'bg-indigo-500/20 text-indigo-400' :
+                        lead.stage === 'customer' ? 'bg-emerald-500/20 text-emerald-400' :
+                        lead.stage === 'closed_won' ? 'bg-green-500/20 text-green-400' :
+                        'bg-rose-500/20 text-rose-400'
+                      }`}>
+                        {lead.stage.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-[10px] text-gray-500">
+                      <span>Fuente: {lead.source || 'directo'}</span>
+                      <span>•</span>
+                      <span>{new Date(lead.created_at).toLocaleDateString()}</span>
+                    </div>
+                    {/* Stage progress */}
+                    <div className="flex items-center gap-1 pt-1">
+                      {LEAD_STAGES.slice(0, stageIndex + 1).map((s, i) => (
+                        <div key={s} className={`flex-1 h-1.5 rounded-full ${
+                          i === stageIndex ? 'bg-[#00a884]' :
+                          i < stageIndex ? 'bg-[#00a884]/50' :
+                          'bg-white/[0.1]'
+                        }`} />
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Lead detail panel */}
+            <div className="space-y-4">
+              <h3 className="text-xs uppercase font-extrabold text-gray-500 tracking-wider">Detalle del Lead</h3>
+              {(() => {
+                const selectedLead = leads.find(l => l.id === selectedLeadId);
+                if (!selectedLead) {
+                  return (
+                    <div className="p-6 rounded-xl bg-white/[0.02] border border-white/[0.04] text-center text-gray-500 text-xs">
+                      Selecciona un lead para ver detalles
+                    </div>
+                  );
+                }
+                const currentStageIdx = LEAD_STAGES.indexOf(selectedLead.stage);
+                const nextStage = getNextStage(selectedLead.stage);
+                return (
+                  <div className="p-5 rounded-xl bg-[#121215] border border-white/[0.04] space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-white text-base">{selectedLead.customers?.name || 'Lead Sin Nombre'}</h4>
+                        <p className="text-[10px] text-gray-500 font-mono">{selectedLead.customers?.phone_number}</p>
+                      </div>
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase ${
+                        selectedLead.stage === 'new' ? 'bg-blue-500/20 text-blue-400' :
+                        selectedLead.stage === 'contacted' ? 'bg-amber-500/20 text-amber-400' :
+                        selectedLead.stage === 'qualified' ? 'bg-purple-500/20 text-purple-400' :
+                        selectedLead.stage === 'appointment_scheduled' ? 'bg-indigo-500/20 text-indigo-400' :
+                        selectedLead.stage === 'customer' ? 'bg-emerald-500/20 text-emerald-400' :
+                        selectedLead.stage === 'closed_won' ? 'bg-green-500/20 text-green-400' :
+                        'bg-rose-500/20 text-rose-400'
+                      }`}>
+                        {selectedLead.stage.replace('_', ' ')}
+                      </span>
+                    </div>
+
+                    {/* Stage progression actions */}
+                    {nextStage && (
+                      <button
+                        onClick={() => updateLeadStage(selectedLead.id, nextStage)}
+                        className="w-full py-2.5 rounded-lg bg-[#00a884] hover:bg-[#009675] text-black font-bold text-xs transition-all"
+                      >
+                        → Avanzar a {nextStage.replace('_', ' ')}
+                      </button>
+                    )}
+
+                    {/* Activity timeline */}
+                    <div className="pt-4 border-t border-white/[0.04]">
+                      <h5 className="text-[10px] uppercase font-extrabold text-gray-500 tracking-wider mb-3">Línea de Tiempo</h5>
+                      {(leadEvents.length > 0 ? leadEvents : []).map(event => (
+                        <div key={event.id} className="flex items-start space-x-2 py-2 border-b border-white/[0.02]">
+                          <span className="text-[10px] text-gray-500 font-mono">{new Date(event.created_at).toLocaleTimeString()}</span>
+                          <span className="text-[10px] text-white">{event.event_type}</span>
+                        </div>
+                      ))}
+                      {leadEvents.length === 0 && (
+                        <p className="text-[10px] text-gray-500 italic">Sin actividad registrada</p>
+                      )}
+                    </div>
+
+                    {/* Notes section */}
+                    <div className="pt-4 border-t border-white/[0.04]">
+                      <div className="flex flex-col space-y-2 mb-3">
+                        {leadNotes.map(note => (
+                          <div key={note.id} className="p-2 rounded bg-white/[0.02] text-[10px] text-gray-300">
+                            {note.body}
+                            <span className="text-[9px] text-gray-500 ml-2">{new Date(note.created_at).toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          placeholder="Agregar nota..."
+                          className="flex-grow bg-[#090d16] border border-white/[0.06] rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#00a884]/40"
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                              addLeadNote(selectedLead.id, e.currentTarget.value);
+                              e.currentTarget.value = '';
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      ) : activeTab === 'inbox' ? (
         <>
           {/* A. CHATS DIRECTORY LIST */}
           <section className="w-80 bg-[#090d16]/70 border-r border-white/[0.04] flex flex-col relative z-10">
