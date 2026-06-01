@@ -12,7 +12,7 @@ export default function SettingsPanel({ activeOrgId, isDegradedMode }: { activeO
         working_hours_start: '09:00',
         working_hours_end: '18:00',
         working_days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-        default_provider: 'langdock',
+        default_provider: 'primary',
         sla_hours: 4
       });
       setLoading(false);
@@ -26,7 +26,7 @@ export default function SettingsPanel({ activeOrgId, isDegradedMode }: { activeO
           working_hours_start: '09:00',
           working_hours_end: '18:00',
           working_days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-          default_provider: 'langdock',
+          default_provider: 'primary',
           sla_hours: 4
         });
         setLoading(false);
@@ -163,9 +163,9 @@ export default function SettingsPanel({ activeOrgId, isDegradedMode }: { activeO
                 onChange={(e) => handleChange('default_provider', e.target.value)}
                 className="w-full bg-zinc-950 border border-white/10 rounded px-3 py-2 text-white text-xs outline-none focus:border-[#00a884]/50 [&>option]:bg-[#121215]"
               >
-                <option value="langdock">Langdock (Recomendado)</option>
-                <option value="openai">OpenAI Fallback</option>
-                <option value="anthropic">Anthropic Fallback</option>
+                <option value="primary">OYE AI Engine (Recommended)</option>
+                <option value="backup">OYE AI Backup</option>
+                <option value="fallback">OYE AI Fallback</option>
               </select>
             </div>
 

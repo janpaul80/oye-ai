@@ -35,7 +35,7 @@ const TERMS_DICT = {
       ],
 
       liability_title: "4. Deslindes y Limitación de Responsabilidad",
-      liability_body: "El Usuario reconoce que la plataforma de Oye AI opera mediante modelos generativos y APIs de terceros (Meta, OpenAI):",
+      liability_body: "El Usuario reconoce que la plataforma de Oye AI opera mediante modelos generativos y APIs deIA de terceros:",
       liability_items: [
         "**Uptime y API**: Aunque mantenemos un SLA del 99.9% en nuestra infraestructura central, no nos hacemos responsables por fallos generales, caídas de servidores globales de Meta o bloqueos temporales de tu línea telefónica comercial dictaminados por algoritmos automatizados de seguridad de WhatsApp.",
         "**Contenido de la IA**: El Usuario es responsable de configurar adecuadamente las instrucciones base (prompting) y la base de conocimientos de su IA. Oye AI no se responsabiliza por cotizaciones imprecisas, interpretaciones erróneas, o compromisos transaccionales incorrectos generados autónomamente por la IA."

@@ -44,7 +44,7 @@ const PRIVACY_DICT = {
       ],
 
       whatsapp_title: "5. API de WhatsApp y Terceros",
-      whatsapp_body: "Nuestra integración se realiza bajo los términos y directrices oficiales de Meta y la API de WhatsApp Cloud. Oye AI no comparte información con redes de publicidad externas. Solo compartimos datos indispensables con proveedores de infraestructura tecnológica autorizados (como OpenAI y Stripe) bajo estrictos contratos de confidencialidad y procesamiento seguro.",
+      whatsapp_body: "Nuestra integración se realiza bajo los términos y directrices oficiales de Meta y la API de WhatsApp Cloud. Oye AI no comparte información con redes de publicidad externas. Solo compartimos datos indispensables con proveedores de infraestructura tecnológica autorizados (como Stripe) bajo estrictos contratos de confidencialidad y procesamiento seguro.",
 
       contact_title: "6. Tus Derechos y Contacto",
       contact_body: "Tienes derecho a acceder, rectificar, limitar o solicitar la eliminación total de tus datos personales y del historial de conversaciones en cualquier momento. Si tienes dudas sobre nuestras prácticas de privacidad, puedes contactarnos directamente enviando un correo a **privacy@oye-ai.com** o escribiéndonos en nuestra sección de [Contacto](/contact)."

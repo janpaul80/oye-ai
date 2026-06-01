@@ -2120,7 +2120,7 @@ export default function DashboardPage() {
                 <div className="flex flex-col">
                   <span className="text-[10px] text-gray-500">Modelo Activo</span>
                   <span className="text-xs text-white font-bold font-sans mt-0.5">
-                    {activeAgentConfig ? `${activeAgentConfig.model_name.toUpperCase()} (${activeAgentConfig.model_provider.toUpperCase()})` : 'GPT-4o Mini (OpenAI)'}
+                    {activeAgentConfig ? activeAgentConfig.model_name.toUpperCase() : 'OYE AI Assistant'}
                   </span>
                 </div>
                 
@@ -2431,10 +2431,10 @@ export default function DashboardPage() {
                   {/* Health scorecards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
-                      { id: 'langdock', label: 'Langdock (Router)', color: 'from-[#00a884] to-[#4facfe]' },
-                      { id: 'openai', label: 'OpenAI (GPT-4o Mini)', color: 'from-emerald-400 to-teal-500' },
-                      { id: 'anthropic', label: 'Anthropic (Claude 3.5)', color: 'from-amber-500 to-orange-600' },
-                      { id: 'gemini', label: 'Gemini (Flash 1.5)', color: 'from-blue-500 to-indigo-600' }
+                      { id: 'primary', label: 'OYE AI Engine', color: 'from-[#00a884] to-[#4facfe]' },
+                      { id: 'backup', label: 'OYE AI Backup', color: 'from-emerald-400 to-teal-500' },
+                      { id: 'fallback', label: 'OYE AI Fallback', color: 'from-amber-500 to-orange-600' },
+                      { id: 'emergency', label: 'OYE AI Emergency', color: 'from-blue-500 to-indigo-600' }
                     ].map(p => {
                       const health = telemetry?.providerHealth?.[p.id] || { uptimeRatio: 1.0, avgLatencyMs: 0, errorCount: 0 };
                       return (
