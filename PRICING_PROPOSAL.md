@@ -1,147 +1,71 @@
-# OYE AI - Pricing Proposal
+# OYE AI - Pricing Strategy (Launch)
 
-## Pricing Philosophy
+## Launch Pricing
 
-- Start free to attract customers
-- Build usage, then monetize
-- Tier based on features and limits
+### Free Trial - 7 Days
+- No credit card required
+- Full platform access
+- Inbox, Leads, AI Responses, Knowledge Base, Bookings, Analytics
+- Demo organizations pre-loaded
+- After 7 days → prompt to upgrade
 
----
+### Basic - $25/month
+- 1 Business organization
+- Lead Management
+- AI Responses (limit: 200/month)
+- Inbox
+- Booking Management
+- Business Knowledge Base
+- Basic Analytics
 
-## Tier Overview
+### Pro - $49.99/month
+Everything in Basic +:
+- Unlimited AI Responses
+- Advanced Analytics
+- Lead Scoring
+- Sentiment Analysis
+- Priority Support
+- Voice AI eligibility (future)
 
-| Feature | Starter | Professional | Business |
-|--------|---------|--------------|-----------|
-| **Price** | **$0/mo** | **$49/mo** | **$149/mo** |
-| **Organizations** | 1 | 3 | Unlimited |
-| **Conversations/mo** | 100 | 1,000 | Unlimited |
-| **Leads** | 50 | 500 | Unlimited |
-| **Team Members** | 1 | 5 | 20 |
-| **AI Responses** | 50 | 500 | Unlimited |
-| **Services** | 3 | 15 | Unlimited |
-| **FAQ Entries** | 5 | 25 | Unlimited |
-| **Analytics** | Basic | Advanced | Full |
-| **Support** | Community | Email | Priority |
-
----
-
-## Detailed Feature Matrix
-
-### Starter - Free
-```
-$0/month
-├── 1 Organization
-├── 100 conversations/month
-├── 50 active leads
-├── 1 team member
-├── 50 AI responses/month
-├── 3 services
-├── 5 FAQ entries
-├── Basic analytics
-└── Community support
-```
-
-**Target**: Solopreneurs, small businesses testing
-
-### Professional - $49/month
-```
-$49/month
-├── 3 Organizations
-├── 1,000 conversations/month
-├── 500 active leads
-├── 5 team members
-├── 500 AI responses/month
-├── 15 services
-├── 25 FAQ entries
-├── Advanced analytics
-│   ├── Sentiment trends
-│   ├── Lead scoring
-│   └── Conversion funnels
-└── Email support (24h response)
-```
-
-**Target**: Growing businesses, agencies
-
-### Business - $149/month
-```
-$149/month
-├── Unlimited organizations
-├── Unlimited conversations
-├── Unlimited leads
-├── 20 team members
-├── Unlimited AI responses
-├── Unlimited services
-├── Unlimited FAQ
-├── Full analytics
-│   ├── Revenue tracking
-│   ├── Team performance
-│   └── Custom reports
-├── Priority support (4h response)
-├── API access
-└── Custom integrations
-```
-
-**Target**: Enterprises, resellers
+### Business - Coming Soon
+- Not launching yet
+- Show "Coming Soon" placeholder
 
 ---
 
-## Usage Overages
+## Stripe Integration
 
-| Resource | Overage Price |
-|----------|-------------|
-| Additional conversations | $0.05/each |
-| Additional AI responses | $0.10/each |
-| Additional team members | $10/each |
+### Products (to create)
+- Basic Plan: price_basic_xxx ($25/month)
+- Pro Plan: price_pro_xxx ($49.99/month)
 
----
+### Trial Support
+- 7-day free trial in Stripe
+- No credit card: track in database, not Stripe
 
-## Enterprise Options
-
-**For large deployments:**
-- Custom pricing
-- Dedicated infrastructure
-- SLA guarantees
-- On-premise option
-
-Contact sales for details.
+### Billing Flow
+1. User signs up → Free tier
+2. 7-day trial starts
+3. Day 5 → Prompt to upgrade
+4. Day 7 without upgrade → Read-only mode
+5. User subscribes → Full access restored
 
 ---
 
-## Implementation Notes
+## Implementation
 
-1. **Starter** = Free tier to acquire customers
-2. **Professional** = Main revenue tier ($49)
-3. **Business** = Upsell for growth
-4. **Enterprise** = Custom deals
+### Database
+- `organizations.trial_end_date` - When trial expires
+- `organizations.trial_converted` - If converted to paid
+- `organizations.stripe_customer_id` - Stripe customer
+- `organizations.stripe_subscription_id` - Active sub
 
-### Free Tier Rationale
-- AI API costs ~$0.001/response
-- Free tier limited to 50 responses = $0.05 API cost
-- Customer acquisition value: higher than cost
+### API Endpoints
+- POST /api/billing/subscribe - Create subscription
+- POST /api/billing/cancel - Cancel subscription
+- GET /api/billing/status - Current status
 
-### Professional Rationale
-- $49 x 12 = $588/year
-- AI cost at 500 responses = $50/year margin
-- Covers hosting + support
-
----
-
-## Comparison to Competitors
-
-| Competitor | Starter | Professional | Notes |
-|----------|--------|-------------|--------|
-| ManyChat | $15/mo | $59/mo | More expensive |
-| Chatfuel | $15/mo | $89/mo | Higher |
-| MobileMonkey | $29/mo | $198/mo | Much higher |
-| **OYE AI** | **Free** | **$49/mo** | Most affordable |
-
----
-
-## Next Steps
-
-1. Implement usage tracking
-2. Build billing UI
-3. Add Stripe integration
-4. Set up usage alerts
+### Webhook
+- POST /api/webhooks/stripe - Handle subscription events
 
 EOF
