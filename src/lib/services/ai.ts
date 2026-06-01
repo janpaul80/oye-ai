@@ -88,7 +88,7 @@ const langdockProvider: AIProvider = {
     }
 
     const region = process.env.LANGDOCK_REGION || 'us';
-    const url = process.env.LANGDOCK_BASE_URL || `https://api.langdock.com/openai/${region}/v1/chat/completions`;
+    const url = process.env.LANGDOCK_OPENAI_BASE_URL || `https://api.langdock.com/openai/${region}/v1/chat/completions`;
 
     const response = await fetchWithRetryAndTimeout(url, {
       method: 'POST',
@@ -127,7 +127,7 @@ const openaiProvider: AIProvider = {
       throw new Error('Direct OpenAI API key is missing.');
     }
 
-    const model = modelName || process.env.LANGDOCK_OPENAI_MODEL || 'gpt-4o-mini';
+    const model = modelName || process.env.LANGDOCK_OPENAI_MODEL || 'gpt-5-mini';
 
     const response = await fetchWithRetryAndTimeout('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
