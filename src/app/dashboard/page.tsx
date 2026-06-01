@@ -2471,7 +2471,7 @@ export default function DashboardPage() {
                     <div className="space-y-1">
                       <p className="font-bold">Política de Ruteo Inteligente Activa:</p>
                       <p className="leading-relaxed text-blue-200/80">
-                        El ruteador Langdock evalúa constantemente el estado de las APIs. En caso de latencia &gt; 3,000ms o error HTTP 5xx, se ejecuta failover automático a Gemini o OpenAI en menos de 100ms para mantener el canal 100% disponible.
+                        El ruteador OYE AI evalúa constantemente el estado de las APIs. En caso de latencia &gt; 3,000ms o error, se ejecuta failover automático a proveedores de respaldo en menos de 100ms para mantener el canal 100% disponible.
                       </p>
                     </div>
                   </div>

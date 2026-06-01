@@ -9,7 +9,7 @@ export default function DLQPanel({ activeOrgId, isDegradedMode }: { activeOrgId:
       setLogs([{
         id: 'mock-dlq-uuid-1',
         queue_name: 'ai.cascade_inference',
-        error_reason: 'Langdock API timeout exceeding 15000ms. Fallback provider also failed.',
+        error_reason: 'AI Provider timeout (>15s). Fallback provider also failed.',
         retry_count: 3,
         status: 'pending',
         created_at: new Date().toISOString()
