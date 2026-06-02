@@ -3,8 +3,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'OYE AI',
-  description: 'AI Business Operations Platform',
+  title: 'OYE AI - Never miss another WhatsApp customer',
+  description: 'The AI assistant that handles your WhatsApp messages 24/7. Automate support, capture leads, and book appointments.',
 };
 
 export default function RootLayout({
